@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultas API</title>
+
+</head>
+<body>
+    <h1>Consultas</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome do Médico</th>
+                <th>Especialidade</th>
+                <th>Nome do Paciente</th>
+                <th>Data da Consulta</th>
+                <th>Convênio Particular</th>
+                <th>Data de Nascimento</th>
+            </tr>
+        </thead>
+        <tbody id="tabela">
+        </tbody>
+    </table>
+
+    <script>
+        async function buscarConsulta() {
+            try {
+                const resposta = await fetch('http://localhost:3032/mostrar');
+
+               
+                if (!resposta.ok) {
+                    throw new Error('Erro na rede: ' + resposta.status);
+                }
+
+               
+                const consulta = await resposta.json();
+                console.log('Dados recebidos da API:', consulta); 
+                return consulta;
+            } catch (error) {
+                console.error('Erro ao buscar consultas:', error);
+                return [];
+            }
+        }
+
+        function atualizarTabela(consulta) {
+            const output = document.getElementById('tabela');
+            output.innerHTML = ''; 
+
+            if (consulta.length === 0) {
+                output.innerHTML = '<tr><td colspan="7">Nenhum dado disponível.</td></tr>';
+                return;
+            }
+
+            consulta.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.nmmedico}</td>
+                    <td>${item.espmedico}</td>
+                    <td>${item.nmpaciente}</td>
+                    <td>${item.dtconsulta ? new Date(item.dtconsulta).toLocaleDateString('pt-BR') : ''}</td>
+                    <td>${item.conveparticular}</td>
+                    <td>${item.dtnascimento ? new Date(item.dtnascimento).toLocaleDateString('pt-BR') : ''}</td>
+                `;
+                output.appendChild(row); 
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const consulta = await buscarConsulta(); 
+            atualizarTabela(consulta); 
+        });
+    </script>
+</body>
+</html>
+
+
+
